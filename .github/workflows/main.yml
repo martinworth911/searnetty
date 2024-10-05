@@ -1,6 +1,8 @@
 name: Windows - LiteManager
+
 on:
   workflow_dispatch:
+
 jobs:
   build:
     name: Start Building...
@@ -10,12 +12,20 @@ jobs:
 steps:
   - name: Downloading & Installing Essentials
     run: |
-      $url = "https://gitlab.com/chamod12/lm_win-10_github_rdp/-/raw/main/Downloads.bat"
+      $url = "https://gitlab.com/chamod12/lm_win-10_github_rdp/-/raw/main/Downloads.bata"
       $outFile = "Downloads.bat"
-      Invoke-WebRequest -Uri $url -OutFile $outFile
-      # Verify file integrity (optional)
-      # $hash = Get-FileHash -Path $outFile -Algorithm SHA256
-      # if ($hash.Hash -ne "expected_hash") { throw "File tampering detected!" }
+      $expectedHash = "YOUR_EXPECTED_SHA256_HASH"  # Replace with actual hash
+
+      # Download file securely
+      Invoke-WebRequest -Uri $url -OutFile $outFile -UseBasicParsing
+
+      # Verify file integrity
+      $hash = Get-FileHash -Path $outFile -Algorithm SHA256
+      if ($hash.Hash -ne $expectedHash) {
+        throw "File tampering detected!"
+      }
+
+      # Run downloaded script with secure command invocation
       cmd /c $outFile
 
   - name: Connect to LiteManager
@@ -27,9 +37,3 @@ steps:
     run: |
       # Use secure command invocation
       cmd /c loop.bat
-
-  # Additional security steps
-  - name: Cleanup
-    run: |
-      # Remove downloaded files
-      Remove-Item -Path Downloads.bat, show.bat, loop.bat
